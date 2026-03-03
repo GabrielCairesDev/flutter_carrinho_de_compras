@@ -8,12 +8,12 @@ class CartIconBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Badge(
-      isLabelVisible: count > 0,
-      label: Text('$count'),
-      child: IconButton(
-        onPressed: () => Navigator.pushNamed(context, AppRoutes.cart),
-        icon: const Icon(Icons.shopping_cart),
+    return IconButton(
+      onPressed: () => Navigator.pushNamed(context, AppRoutes.cart),
+      icon: Badge(
+        isLabelVisible: count > 0,
+        label: Text('$count'),
+        child: const Icon(Icons.shopping_cart),
       ),
     );
   }
