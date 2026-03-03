@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_carrinho_de_compras/core/utils/currency_formatter.dart';
 import 'package:flutter_carrinho_de_compras/domain/models/product.dart';
 import 'package:flutter_carrinho_de_compras/presentation/catalog/widgets/quantity_counter.dart';
 
@@ -50,7 +51,7 @@ class ProductCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'R\$ ${product.price.toStringAsFixed(2)}',
+                    formatBRL(product.price),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.bold,
