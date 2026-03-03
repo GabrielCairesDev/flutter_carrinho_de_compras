@@ -9,6 +9,7 @@ class ViewScaffold extends StatelessWidget {
   final String emptyMessage;
   final bool isLoading;
   final String errorMessage;
+  final IconData? emptyIcon;
   const ViewScaffold({
     super.key,
     required this.appBar,
@@ -16,6 +17,7 @@ class ViewScaffold extends StatelessWidget {
     this.emptyMessage = '',
     this.isLoading = false,
     this.errorMessage = '',
+    this.emptyIcon,
   });
 
   @override
@@ -27,7 +29,10 @@ class ViewScaffold extends StatelessWidget {
           : errorMessage.isNotEmpty
           ? ErrorState(message: errorMessage)
           : emptyMessage.isNotEmpty
-          ? EmptyState(message: emptyMessage)
+          ? EmptyState(
+              message: emptyMessage,
+              icon: emptyIcon ?? Icons.inbox_outlined,
+            )
           : body,
     );
   }

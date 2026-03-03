@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_carrinho_de_compras/core/utils/currency_formatter.dart';
 import 'package:flutter_carrinho_de_compras/domain/models/product.dart';
-import 'package:flutter_carrinho_de_compras/presentation/catalog/widgets/quantity_counter.dart';
+import 'package:flutter_carrinho_de_compras/core/widgets/quantity_counter.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
