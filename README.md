@@ -322,3 +322,8 @@ ListenableBuilder(
 | DTOs separados das entidades | A camada `data/` é responsável pela serialização; `domain/` contém apenas lógica de negócio pura |
 | Injeção de APIs nos ViewModels | Permite testes unitários determinísticos sem mocks externos (apenas `flutter_test`) |
 | 20% de falha aleatória nas APIs | Simula instabilidade real de rede; garante que o app lida corretamente com erros em todos os fluxos |
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/cc3f5554-d5eb-4aec-a1e0-f2d15e70c7c8" width="250"/>
+  <img src="https://github.com/user-attachments/assets/e08afbf7-f461-4597-83f0-5e63c4c751c6" width="250"/>
+  <img src="https://github.com/user-attachments/assets/296bfcf9-d3c4-416c-8979-90a390f1725b" width="250"/>
+</p>
