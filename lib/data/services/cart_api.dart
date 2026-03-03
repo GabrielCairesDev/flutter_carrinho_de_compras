@@ -7,12 +7,13 @@ import 'package:flutter_carrinho_de_compras/domain/models/product.dart';
 
 class CartApi {
   static const _maxProducts = 10;
+  static const _errorRate = 0.2;
+
+  bool get _shouldFail => Random().nextDouble() < _errorRate;
 
   Future<Result<Cart>> addItem(Cart current, Product product) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    if (Random().nextDouble() < 0.15) {
-      return const Failure('Erro simulado ao adicionar ao carrinho.');
-    }
+    if (_shouldFail) return const Failure('Erro ao adicionar ao carrinho.');
     if (current.isFinished) {
       return const Failure('Não é possível editar carrinho finalizado.');
     }
@@ -36,9 +37,7 @@ class CartApi {
     int quantity,
   ) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    if (Random().nextDouble() < 0.15) {
-      return const Failure('Erro simulado ao atualizar quantidade.');
-    }
+    if (_shouldFail) return const Failure('Erro ao atualizar quantidade.');
     if (current.isFinished) {
       return const Failure('Não é possível editar carrinho finalizado.');
     }
@@ -55,9 +54,7 @@ class CartApi {
 
   Future<Result<Cart>> removeItem(Cart current, int productId) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    if (Random().nextDouble() < 0.15) {
-      return const Failure('Erro simulado ao remover item.');
-    }
+    if (_shouldFail) return const Failure('Erro ao remover item.');
     if (current.isFinished) {
       return const Failure('Não é possível editar carrinho finalizado.');
     }

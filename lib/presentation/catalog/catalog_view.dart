@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_carrinho_de_compras/core/widgets/app_snackbar.dart';
 import 'package:flutter_carrinho_de_compras/core/widgets/view_scaffold.dart';
 import 'package:flutter_carrinho_de_compras/presentation/catalog/catalog_viewmodel.dart';
 import 'package:flutter_carrinho_de_compras/presentation/catalog/widgets/cart_icon_badge.dart';
@@ -28,6 +29,15 @@ class _CatalogViewState extends State<CatalogView> {
     super.dispose();
   }
 
+  void _showCartFeedback(BuildContext context) {
+    if (viewModel.cartError.isNotEmpty) {
+      showErrorSnackbar(context, viewModel.cartError);
+    } else if (viewModel.cartSuccess.isNotEmpty) {
+      showSuccessSnackbar(context, viewModel.cartSuccess);
+    }
+    viewModel.consumeCartFeedback();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -43,7 +53,6 @@ class _CatalogViewState extends State<CatalogView> {
               CartIconBadge(count: CartStore.instance.cart.uniqueCount),
             ],
           ),
-
           body: RefreshIndicator(
             onRefresh: viewModel.loadProducts,
             child: ListView.builder(
@@ -57,9 +66,18 @@ class _CatalogViewState extends State<CatalogView> {
                   child: ProductCard(
                     product: product,
                     quantityInCart: qty,
-                    onAdd: () => viewModel.addToCart(product),
-                    onIncrement: () => viewModel.incrementQuantity(product),
-                    onDecrement: () => viewModel.decrementQuantity(product),
+                    onAdd: () async {
+                      await viewModel.addToCart(product);
+                      if (mounted) _showCartFeedback(context);
+                    },
+                    onIncrement: () async {
+                      await viewModel.incrementQuantity(product);
+                      if (mounted) _showCartFeedback(context);
+                    },
+                    onDecrement: () async {
+                      await viewModel.decrementQuantity(product);
+                      if (mounted) _showCartFeedback(context);
+                    },
                   ),
                 );
               },

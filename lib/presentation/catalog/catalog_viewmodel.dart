@@ -21,6 +21,9 @@ class CatalogViewModel extends ChangeNotifier {
   String _cartError = '';
   String get cartError => _cartError;
 
+  String _cartSuccess = '';
+  String get cartSuccess => _cartSuccess;
+
   String get emptyMessage =>
       _products.isEmpty && !_isLoading && _loadError.isEmpty
       ? 'Nenhum produto encontrado.'
@@ -51,8 +54,11 @@ class CatalogViewModel extends ChangeNotifier {
     switch (result) {
       case Success(:final data):
         CartStore.instance.setCart(data);
+        _cartSuccess = '${product.title} adicionado ao carrinho!';
+        _cartError = '';
       case Failure(:final message):
         _cartError = message;
+        _cartSuccess = '';
     }
     notifyListeners();
   }
@@ -67,31 +73,40 @@ class CatalogViewModel extends ChangeNotifier {
     switch (result) {
       case Success(:final data):
         CartStore.instance.setCart(data);
+        _cartSuccess = 'Quantidade atualizada!';
+        _cartError = '';
       case Failure(:final message):
         _cartError = message;
+        _cartSuccess = '';
     }
     notifyListeners();
   }
 
   Future<void> decrementQuantity(Product product) async {
     final qty = CartStore.instance.quantityForProduct(product.id);
-    if (qty <= 1) return;
-    final result = await _cartApi.updateQuantity(
-      CartStore.instance.cart,
-      product.id,
-      qty - 1,
-    );
+    final result = qty == 1
+        ? await _cartApi.removeItem(CartStore.instance.cart, product.id)
+        : await _cartApi.updateQuantity(
+            CartStore.instance.cart,
+            product.id,
+            qty - 1,
+          );
     switch (result) {
       case Success(:final data):
         CartStore.instance.setCart(data);
+        _cartSuccess = qty == 1
+            ? '${product.title} removido do carrinho!'
+            : 'Quantidade atualizada!';
+        _cartError = '';
       case Failure(:final message):
         _cartError = message;
+        _cartSuccess = '';
     }
     notifyListeners();
   }
 
-  void clearCartError() {
+  void consumeCartFeedback() {
     _cartError = '';
-    notifyListeners();
+    _cartSuccess = '';
   }
 }
