@@ -7,7 +7,9 @@ import 'package:flutter_carrinho_de_compras/domain/models/cart.dart';
 import 'package:flutter_carrinho_de_compras/presentation/store/cart_store.dart';
 
 class CartViewModel extends ChangeNotifier {
-  CartViewModel() {
+  CartViewModel({CartApi? cartApi, CheckoutApi? checkoutApi})
+      : _cartApi = cartApi ?? CartApi(),
+        _checkoutApi = checkoutApi ?? CheckoutApi() {
     removeItem = Command1(_removeItem);
     incrementItem = Command1(_incrementItem);
     decrementItem = Command1(_decrementItem);
@@ -19,8 +21,8 @@ class CartViewModel extends ChangeNotifier {
     checkout.addListener(notifyListeners);
   }
 
-  final _cartApi = CartApi();
-  final _checkoutApi = CheckoutApi();
+  final CartApi _cartApi;
+  final CheckoutApi _checkoutApi;
 
   late final Command1<Cart, int> removeItem;
   late final Command1<Cart, int> incrementItem;

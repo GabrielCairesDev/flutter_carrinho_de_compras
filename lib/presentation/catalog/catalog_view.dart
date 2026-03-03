@@ -8,7 +8,9 @@ import 'package:flutter_carrinho_de_compras/presentation/catalog/widgets/product
 import 'package:flutter_carrinho_de_compras/presentation/store/cart_store.dart';
 
 class CatalogView extends StatefulWidget {
-  const CatalogView({super.key});
+  const CatalogView({super.key, this.viewModelFactory});
+
+  final CatalogViewModel Function()? viewModelFactory;
 
   @override
   State<CatalogView> createState() => _CatalogViewState();
@@ -20,7 +22,7 @@ class _CatalogViewState extends State<CatalogView> {
   @override
   void initState() {
     super.initState();
-    viewModel = CatalogViewModel();
+    viewModel = widget.viewModelFactory?.call() ?? CatalogViewModel();
     viewModel.loadProducts.execute();
   }
 

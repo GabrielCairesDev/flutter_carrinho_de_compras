@@ -8,21 +8,22 @@ import 'package:flutter_carrinho_de_compras/domain/models/product.dart';
 import 'package:flutter_carrinho_de_compras/presentation/store/cart_store.dart';
 
 class CatalogViewModel extends ChangeNotifier {
-  CatalogViewModel() {
+  CatalogViewModel({ProductsApi? productsApi, CartApi? cartApi})
+      : _productsApi = productsApi ?? ProductsApi(),
+        _cartApi = cartApi ?? CartApi() {
     loadProducts = Command(_loadProducts);
     addToCart = Command1(_addToCart);
     incrementQuantity = Command1(_incrementQuantity);
     decrementQuantity = Command1(_decrementQuantity);
 
-    // Propaga notificações dos commands para que a View precise ouvir apenas o ViewModel
     loadProducts.addListener(notifyListeners);
     addToCart.addListener(notifyListeners);
     incrementQuantity.addListener(notifyListeners);
     decrementQuantity.addListener(notifyListeners);
   }
 
-  final _productsApi = ProductsApi();
-  final _cartApi = CartApi();
+  final ProductsApi _productsApi;
+  final CartApi _cartApi;
 
   List<Product> _products = [];
   List<Product> get products => _products;

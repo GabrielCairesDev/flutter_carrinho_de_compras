@@ -9,7 +9,9 @@ import 'package:flutter_carrinho_de_compras/presentation/store/cart_store.dart';
 import 'package:flutter_carrinho_de_compras/routes/app_routes.dart';
 
 class CartView extends StatefulWidget {
-  const CartView({super.key});
+  const CartView({super.key, this.viewModelFactory});
+
+  final CartViewModel Function()? viewModelFactory;
 
   @override
   State<CartView> createState() => _CartViewState();
@@ -21,7 +23,7 @@ class _CartViewState extends State<CartView> {
   @override
   void initState() {
     super.initState();
-    viewModel = CartViewModel();
+    viewModel = widget.viewModelFactory?.call() ?? CartViewModel();
   }
 
   @override
