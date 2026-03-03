@@ -23,8 +23,8 @@ class CatalogViewModel extends ChangeNotifier {
 
   String get emptyMessage =>
       _products.isEmpty && !_isLoading && _loadError.isEmpty
-          ? 'Nenhum produto encontrado.'
-          : '';
+      ? 'Nenhum produto encontrado.'
+      : '';
 
   Future<void> loadProducts() async {
     _isLoading = true;
@@ -53,8 +53,8 @@ class CatalogViewModel extends ChangeNotifier {
         CartStore.instance.setCart(data);
       case Failure(:final message):
         _cartError = message;
-        notifyListeners();
     }
+    notifyListeners();
   }
 
   Future<void> incrementQuantity(Product product) async {
@@ -69,8 +69,8 @@ class CatalogViewModel extends ChangeNotifier {
         CartStore.instance.setCart(data);
       case Failure(:final message):
         _cartError = message;
-        notifyListeners();
     }
+    notifyListeners();
   }
 
   Future<void> decrementQuantity(Product product) async {
@@ -86,8 +86,8 @@ class CatalogViewModel extends ChangeNotifier {
         CartStore.instance.setCart(data);
       case Failure(:final message):
         _cartError = message;
-        notifyListeners();
     }
+    notifyListeners();
   }
 
   void clearCartError() {
