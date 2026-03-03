@@ -9,6 +9,10 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Carrinho de Compras',
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
       initialRoute: AppRoutes.catalog,
       routes: AppRoutes.routes,
     );
