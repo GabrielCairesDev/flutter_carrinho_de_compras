@@ -6,6 +6,7 @@ import 'package:flutter_carrinho_de_compras/core/widgets/quantity_counter.dart';
 class ProductCard extends StatelessWidget {
   final Product product;
   final int quantityInCart;
+  final bool isLoading;
   final VoidCallback onAdd;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
@@ -17,6 +18,7 @@ class ProductCard extends StatelessWidget {
     required this.onAdd,
     required this.onIncrement,
     required this.onDecrement,
+    this.isLoading = false,
   });
 
   @override
@@ -60,15 +62,24 @@ class ProductCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   if (quantityInCart == 0)
                     FilledButton.icon(
-                      onPressed: onAdd,
-                      icon: const Icon(Icons.add_shopping_cart, size: 18),
+                      onPressed: isLoading ? null : onAdd,
+                      icon: isLoading
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.add_shopping_cart, size: 18),
                       label: const Text('Adicionar'),
                     )
                   else
                     QuantityCounter(
                       quantity: quantityInCart,
-                      onIncrement: onIncrement,
-                      onDecrement: onDecrement,
+                      onIncrement: isLoading ? null : onIncrement,
+                      onDecrement: isLoading ? null : onDecrement,
                     ),
                 ],
               ),

@@ -27,6 +27,9 @@ class CatalogViewModel extends ChangeNotifier {
   List<Product> _products = [];
   List<Product> get products => _products;
 
+  bool get isCartOperationRunning =>
+      addToCart.running || incrementQuantity.running || decrementQuantity.running;
+
   late final Command<List<Product>> loadProducts;
   late final Command1<Cart, Product> addToCart;
   late final Command1<Cart, Product> incrementQuantity;

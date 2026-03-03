@@ -92,6 +92,7 @@ class _CatalogViewState extends State<CatalogView> {
                   child: ProductCard(
                     product: product,
                     quantityInCart: qty,
+                    isLoading: viewModel.isCartOperationRunning,
                     onAdd: () async {
                       await viewModel.addToCart.execute(product);
                       _handleCartResult(viewModel.addToCart.result, product.title);
