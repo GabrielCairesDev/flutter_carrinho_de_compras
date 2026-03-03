@@ -12,4 +12,7 @@ class Cart {
   int get uniqueCount => items.length;
   int get totalItems => items.fold(0, (sum, i) => sum + i.quantity);
   double get subtotal => items.fold(0.0, (sum, i) => sum + i.subtotal);
+
+  bool containsProduct(int productId) =>
+      items.any((i) => i.product.id == productId);
 }

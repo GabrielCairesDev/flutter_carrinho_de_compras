@@ -1,112 +1,94 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_carrinho_de_compras/core/command.dart';
 import 'package:flutter_carrinho_de_compras/core/result.dart';
 import 'package:flutter_carrinho_de_compras/data/services/cart_api.dart';
 import 'package:flutter_carrinho_de_compras/data/services/products_api.dart';
+import 'package:flutter_carrinho_de_compras/domain/models/cart.dart';
 import 'package:flutter_carrinho_de_compras/domain/models/product.dart';
 import 'package:flutter_carrinho_de_compras/presentation/store/cart_store.dart';
 
 class CatalogViewModel extends ChangeNotifier {
-  final ProductsApi _productsApi = ProductsApi();
-  final CartApi _cartApi = CartApi();
+  CatalogViewModel() {
+    loadProducts = Command(_loadProducts);
+    addToCart = Command1(_addToCart);
+    incrementQuantity = Command1(_incrementQuantity);
+    decrementQuantity = Command1(_decrementQuantity);
+
+    // Propaga notificações dos commands para que a View precise ouvir apenas o ViewModel
+    loadProducts.addListener(notifyListeners);
+    addToCart.addListener(notifyListeners);
+    incrementQuantity.addListener(notifyListeners);
+    decrementQuantity.addListener(notifyListeners);
+  }
+
+  final _productsApi = ProductsApi();
+  final _cartApi = CartApi();
 
   List<Product> _products = [];
   List<Product> get products => _products;
 
-  bool _isLoading = true;
-  bool get isLoading => _isLoading;
+  late final Command<List<Product>> loadProducts;
+  late final Command1<Cart, Product> addToCart;
+  late final Command1<Cart, Product> incrementQuantity;
+  late final Command1<Cart, Product> decrementQuantity;
 
-  String _loadError = '';
-  String get errorMessage => _loadError;
+  @override
+  void dispose() {
+    loadProducts.dispose();
+    addToCart.dispose();
+    incrementQuantity.dispose();
+    decrementQuantity.dispose();
+    super.dispose();
+  }
 
-  String _cartError = '';
-  String get cartError => _cartError;
-
-  String _cartSuccess = '';
-  String get cartSuccess => _cartSuccess;
-
-  String get emptyMessage =>
-      _products.isEmpty && !_isLoading && _loadError.isEmpty
-      ? 'Nenhum produto encontrado.'
-      : '';
-
-  Future<void> loadProducts() async {
-    _isLoading = true;
-    _loadError = '';
-    notifyListeners();
-
+  Future<Result<List<Product>>> _loadProducts() async {
     final result = await _productsApi.getProducts();
-
-    _isLoading = false;
-    switch (result) {
-      case Success(:final data):
-        _products = data;
-        _loadError = '';
-      case Failure(:final message):
-        _loadError = message;
-        _products = [];
+    if (result case Success(:final data)) {
+      _products = data;
     }
-    notifyListeners();
+    return result;
   }
 
-  Future<void> addToCart(Product product) async {
-    final current = CartStore.instance.cart;
-    final result = await _cartApi.addItem(current, product);
-    switch (result) {
-      case Success(:final data):
-        CartStore.instance.setCart(data);
-        _cartSuccess = '${product.title} adicionado ao carrinho!';
-        _cartError = '';
-      case Failure(:final message):
-        _cartError = message;
-        _cartSuccess = '';
+  Future<Result<Cart>> _addToCart(Product product) async {
+    final cart = CartStore.instance.cart;
+    if (cart.isFinished) {
+      return const Failure('Não é possível editar um carrinho finalizado.');
     }
-    notifyListeners();
+    if (cart.uniqueCount >= 10 && !cart.containsProduct(product.id)) {
+      return const Failure('Máximo de 10 produtos diferentes no carrinho.');
+    }
+    final result = await _cartApi.addItem(cart, product);
+    if (result case Success(:final data)) {
+      CartStore.instance.setCart(data);
+    }
+    return result;
   }
 
-  Future<void> incrementQuantity(Product product) async {
+  Future<Result<Cart>> _incrementQuantity(Product product) async {
+    final cart = CartStore.instance.cart;
+    if (cart.isFinished) {
+      return const Failure('Não é possível editar um carrinho finalizado.');
+    }
     final qty = CartStore.instance.quantityForProduct(product.id);
-    final result = await _cartApi.updateQuantity(
-      CartStore.instance.cart,
-      product.id,
-      qty + 1,
-    );
-    switch (result) {
-      case Success(:final data):
-        CartStore.instance.setCart(data);
-        _cartSuccess = 'Quantidade atualizada!';
-        _cartError = '';
-      case Failure(:final message):
-        _cartError = message;
-        _cartSuccess = '';
+    final result = await _cartApi.updateQuantity(cart, product.id, qty + 1);
+    if (result case Success(:final data)) {
+      CartStore.instance.setCart(data);
     }
-    notifyListeners();
+    return result;
   }
 
-  Future<void> decrementQuantity(Product product) async {
+  Future<Result<Cart>> _decrementQuantity(Product product) async {
+    final cart = CartStore.instance.cart;
+    if (cart.isFinished) {
+      return const Failure('Não é possível editar um carrinho finalizado.');
+    }
     final qty = CartStore.instance.quantityForProduct(product.id);
     final result = qty == 1
-        ? await _cartApi.removeItem(CartStore.instance.cart, product.id)
-        : await _cartApi.updateQuantity(
-            CartStore.instance.cart,
-            product.id,
-            qty - 1,
-          );
-    switch (result) {
-      case Success(:final data):
-        CartStore.instance.setCart(data);
-        _cartSuccess = qty == 1
-            ? '${product.title} removido do carrinho!'
-            : 'Quantidade atualizada!';
-        _cartError = '';
-      case Failure(:final message):
-        _cartError = message;
-        _cartSuccess = '';
+        ? await _cartApi.removeItem(cart, product.id)
+        : await _cartApi.updateQuantity(cart, product.id, qty - 1);
+    if (result case Success(:final data)) {
+      CartStore.instance.setCart(data);
     }
-    notifyListeners();
-  }
-
-  void consumeCartFeedback() {
-    _cartError = '';
-    _cartSuccess = '';
+    return result;
   }
 }

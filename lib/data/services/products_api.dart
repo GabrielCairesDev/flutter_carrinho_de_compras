@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter_carrinho_de_compras/core/result.dart';
+import 'package:flutter_carrinho_de_compras/data/dtos/product_dto.dart';
 import 'package:flutter_carrinho_de_compras/domain/models/product.dart';
 import 'package:http/http.dart' as http;
 
@@ -21,12 +22,7 @@ class ProductsApi {
       }
       final list = json.decode(response.body) as List;
       final products = list
-          .map((e) => Product(
-                id: e['id'] as int,
-                title: e['title'] as String,
-                price: (e['price'] as num).toDouble(),
-                image: e['image'] as String,
-              ))
+          .map((e) => ProductDto.fromJson(e as Map<String, dynamic>).toEntity())
           .toList();
       return Success(products);
     } catch (e) {

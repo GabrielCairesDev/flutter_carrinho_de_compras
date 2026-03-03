@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_carrinho_de_compras/core/result.dart';
 import 'package:flutter_carrinho_de_compras/core/widgets/app_snackbar.dart';
 import 'package:flutter_carrinho_de_compras/core/widgets/view_scaffold.dart';
 import 'package:flutter_carrinho_de_compras/presentation/catalog/catalog_viewmodel.dart';
@@ -20,7 +21,7 @@ class _CatalogViewState extends State<CatalogView> {
   void initState() {
     super.initState();
     viewModel = CatalogViewModel();
-    viewModel.loadProducts();
+    viewModel.loadProducts.execute();
   }
 
   @override
@@ -29,24 +30,49 @@ class _CatalogViewState extends State<CatalogView> {
     super.dispose();
   }
 
-  void _showCartFeedback(BuildContext context) {
-    if (viewModel.cartError.isNotEmpty) {
-      showErrorSnackbar(context, viewModel.cartError);
-    } else if (viewModel.cartSuccess.isNotEmpty) {
-      showSuccessSnackbar(context, viewModel.cartSuccess);
+  void _handleCartResult(Result<dynamic>? result, String productTitle) {
+    if (!mounted || result == null) return;
+    switch (result) {
+      case Success():
+        showSuccessSnackbar(context, '$productTitle adicionado ao carrinho!');
+      case Failure(:final message):
+        showErrorSnackbar(context, message);
     }
-    viewModel.consumeCartFeedback();
+  }
+
+  void _handleUpdateResult(Result<dynamic>? result, {required bool wasLastItem, required String productTitle}) {
+    if (!mounted || result == null) return;
+    switch (result) {
+      case Success():
+        final msg = wasLastItem
+            ? '$productTitle removido do carrinho!'
+            : 'Quantidade atualizada!';
+        showSuccessSnackbar(context, msg);
+      case Failure(:final message):
+        showErrorSnackbar(context, message);
+    }
+  }
+
+  String get _loadErrorMessage => switch (viewModel.loadProducts.result) {
+        Failure(:final message) => message,
+        _ => '',
+      };
+
+  String get _emptyMessage {
+    if (viewModel.loadProducts.running) return '';
+    if (viewModel.loadProducts.result is Failure) return '';
+    return viewModel.products.isEmpty ? 'Nenhum produto encontrado.' : '';
   }
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: viewModel,
+      listenable: Listenable.merge([viewModel, CartStore.instance]),
       builder: (context, _) {
         return ViewScaffold(
-          isLoading: viewModel.isLoading,
-          errorMessage: viewModel.errorMessage,
-          emptyMessage: viewModel.emptyMessage,
+          isLoading: viewModel.loadProducts.running,
+          errorMessage: _loadErrorMessage,
+          emptyMessage: _emptyMessage,
           appBar: AppBar(
             title: const Text('Catálogo'),
             actions: [
@@ -54,7 +80,7 @@ class _CatalogViewState extends State<CatalogView> {
             ],
           ),
           body: RefreshIndicator(
-            onRefresh: viewModel.loadProducts,
+            onRefresh: viewModel.loadProducts.execute,
             child: ListView.builder(
               padding: const EdgeInsets.all(12),
               itemCount: viewModel.products.length,
@@ -67,16 +93,25 @@ class _CatalogViewState extends State<CatalogView> {
                     product: product,
                     quantityInCart: qty,
                     onAdd: () async {
-                      await viewModel.addToCart(product);
-                      if (mounted) _showCartFeedback(context);
+                      await viewModel.addToCart.execute(product);
+                      _handleCartResult(viewModel.addToCart.result, product.title);
                     },
                     onIncrement: () async {
-                      await viewModel.incrementQuantity(product);
-                      if (mounted) _showCartFeedback(context);
+                      await viewModel.incrementQuantity.execute(product);
+                      _handleUpdateResult(
+                        viewModel.incrementQuantity.result,
+                        wasLastItem: false,
+                        productTitle: product.title,
+                      );
                     },
                     onDecrement: () async {
-                      await viewModel.decrementQuantity(product);
-                      if (mounted) _showCartFeedback(context);
+                      final wasLastItem = CartStore.instance.quantityForProduct(product.id) == 1;
+                      await viewModel.decrementQuantity.execute(product);
+                      _handleUpdateResult(
+                        viewModel.decrementQuantity.result,
+                        wasLastItem: wasLastItem,
+                        productTitle: product.title,
+                      );
                     },
                   ),
                 );
