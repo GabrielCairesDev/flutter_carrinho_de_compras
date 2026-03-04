@@ -10,6 +10,8 @@ class ViewScaffold extends StatelessWidget {
   final bool isLoading;
   final String errorMessage;
   final IconData? emptyIcon;
+  final Widget? floatingActionButton;
+
   const ViewScaffold({
     super.key,
     required this.appBar,
@@ -18,22 +20,27 @@ class ViewScaffold extends StatelessWidget {
     this.isLoading = false,
     this.errorMessage = '',
     this.emptyIcon,
+    this.floatingActionButton,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar,
-      body: isLoading
-          ? const LoadingState()
-          : errorMessage.isNotEmpty
-          ? ErrorState(message: errorMessage)
-          : emptyMessage.isNotEmpty
-          ? EmptyState(
-              message: emptyMessage,
-              icon: emptyIcon ?? Icons.inbox_outlined,
-            )
-          : body,
+      floatingActionButton: floatingActionButton,
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        child: isLoading
+            ? const LoadingState()
+            : errorMessage.isNotEmpty
+            ? ErrorState(message: errorMessage)
+            : emptyMessage.isNotEmpty
+            ? EmptyState(
+                message: emptyMessage,
+                icon: emptyIcon ?? Icons.inbox_outlined,
+              )
+            : body,
+      ),
     );
   }
 }

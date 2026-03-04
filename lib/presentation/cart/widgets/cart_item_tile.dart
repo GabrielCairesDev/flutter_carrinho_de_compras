@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_carrinho_de_compras/core/utils/currency_formatter.dart';
-import 'package:flutter_carrinho_de_compras/domain/models/cart_item.dart';
 import 'package:flutter_carrinho_de_compras/core/widgets/quantity_counter.dart';
+import 'package:flutter_carrinho_de_compras/domain/models/cart_item.dart';
 
 class CartItemTile extends StatelessWidget {
   final CartItem item;
@@ -21,8 +21,8 @@ class CartItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
 
     return Card(
       child: Padding(
@@ -30,17 +30,7 @@ class CartItemTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                item.product.image,
-                width: 72,
-                height: 72,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) =>
-                    const Icon(Icons.image_not_supported, size: 72),
-              ),
-            ),
+            _ItemImage(image: item.product.image, cs: cs),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -54,30 +44,26 @@ class CartItemTile extends StatelessWidget {
                           item.product.title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: textTheme.titleSmall,
+                          style: tt.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            height: 1.3,
+                          ),
                         ),
                       ),
-                      IconButton(
-                        onPressed: isLoading ? null : onRemove,
-                        icon: Icon(
-                          Icons.delete_outline,
-                          color: isLoading ? null : colorScheme.error,
-                        ),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        visualDensity: VisualDensity.compact,
-                        tooltip: 'Remover item',
+                      const SizedBox(width: 4),
+                      _RemoveButton(
+                        isLoading: isLoading,
+                        onRemove: onRemove,
+                        cs: cs,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     formatBRL(item.product.price),
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                    style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
                       QuantityCounter(
@@ -89,17 +75,13 @@ class CartItemTile extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
-                            'Subtotal',
-                            style: textTheme.labelSmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
+                          Text('Subtotal', style: tt.labelSmall),
+                          const SizedBox(height: 2),
                           Text(
                             formatBRL(item.subtotal),
-                            style: textTheme.titleSmall?.copyWith(
-                              color: colorScheme.primary,
-                              fontWeight: FontWeight.bold,
+                            style: tt.titleSmall?.copyWith(
+                              color: cs.primary,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ],
@@ -112,6 +94,71 @@ class CartItemTile extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ItemImage extends StatelessWidget {
+  final String image;
+  final ColorScheme cs;
+
+  const _ItemImage({required this.image, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: ColoredBox(
+        color: cs.surfaceContainerLowest,
+        child: SizedBox(
+          width: 80,
+          height: 80,
+          child: Image.network(
+            image,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stack) => Center(
+              child: Icon(
+                Icons.image_not_supported_outlined,
+                size: 32,
+                color: cs.onSurfaceVariant.withAlpha(100),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RemoveButton extends StatelessWidget {
+  final bool isLoading;
+  final VoidCallback onRemove;
+  final ColorScheme cs;
+
+  const _RemoveButton({
+    required this.isLoading,
+    required this.onRemove,
+    required this.cs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: isLoading ? null : onRemove,
+      icon: Icon(
+        Icons.delete_outline_rounded,
+        color: isLoading ? cs.onSurface.withAlpha(60) : cs.error,
+        size: 20,
+      ),
+      style: IconButton.styleFrom(
+        padding: const EdgeInsets.all(6),
+        minimumSize: const Size(32, 32),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        backgroundColor: isLoading
+            ? Colors.transparent
+            : cs.errorContainer.withAlpha(60),
+      ),
+      tooltip: 'Remover item',
     );
   }
 }

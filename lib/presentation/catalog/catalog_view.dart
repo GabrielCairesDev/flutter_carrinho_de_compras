@@ -42,7 +42,11 @@ class _CatalogViewState extends State<CatalogView> {
     }
   }
 
-  void _handleUpdateResult(Result<dynamic>? result, {required bool wasLastItem, required String productTitle}) {
+  void _handleUpdateResult(
+    Result<dynamic>? result, {
+    required bool wasLastItem,
+    required String productTitle,
+  }) {
     if (!mounted || result == null) return;
     switch (result) {
       case Success():
@@ -56,9 +60,9 @@ class _CatalogViewState extends State<CatalogView> {
   }
 
   String get _loadErrorMessage => switch (viewModel.loadProducts.result) {
-        Failure(:final message) => message,
-        _ => '',
-      };
+    Failure(:final message) => message,
+    _ => '',
+  };
 
   String get _emptyMessage {
     if (viewModel.loadProducts.running) return '';
@@ -76,47 +80,54 @@ class _CatalogViewState extends State<CatalogView> {
           errorMessage: _loadErrorMessage,
           emptyMessage: _emptyMessage,
           appBar: AppBar(
-            title: const Text('Catálogo'),
+            title: const Text('Produtos'),
             actions: [
               CartIconBadge(count: CartStore.instance.cart.uniqueCount),
             ],
           ),
           body: RefreshIndicator(
             onRefresh: viewModel.loadProducts.execute,
-            child: ListView.builder(
-              padding: const EdgeInsets.all(12),
+            child: GridView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.62,
+              ),
               itemCount: viewModel.products.length,
               itemBuilder: (context, index) {
                 final product = viewModel.products[index];
                 final qty = CartStore.instance.quantityForProduct(product.id);
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: ProductCard(
-                    product: product,
-                    quantityInCart: qty,
-                    isLoading: viewModel.isCartOperationRunning,
-                    onAdd: () async {
-                      await viewModel.addToCart.execute(product);
-                      _handleCartResult(viewModel.addToCart.result, product.title);
-                    },
-                    onIncrement: () async {
-                      await viewModel.incrementQuantity.execute(product);
-                      _handleUpdateResult(
-                        viewModel.incrementQuantity.result,
-                        wasLastItem: false,
-                        productTitle: product.title,
-                      );
-                    },
-                    onDecrement: () async {
-                      final wasLastItem = CartStore.instance.quantityForProduct(product.id) == 1;
-                      await viewModel.decrementQuantity.execute(product);
-                      _handleUpdateResult(
-                        viewModel.decrementQuantity.result,
-                        wasLastItem: wasLastItem,
-                        productTitle: product.title,
-                      );
-                    },
-                  ),
+                return ProductCard(
+                  product: product,
+                  quantityInCart: qty,
+                  isLoading: viewModel.isCartOperationRunning,
+                  onAdd: () async {
+                    await viewModel.addToCart.execute(product);
+                    _handleCartResult(
+                      viewModel.addToCart.result,
+                      product.title,
+                    );
+                  },
+                  onIncrement: () async {
+                    await viewModel.incrementQuantity.execute(product);
+                    _handleUpdateResult(
+                      viewModel.incrementQuantity.result,
+                      wasLastItem: false,
+                      productTitle: product.title,
+                    );
+                  },
+                  onDecrement: () async {
+                    final wasLastItem =
+                        CartStore.instance.quantityForProduct(product.id) == 1;
+                    await viewModel.decrementQuantity.execute(product);
+                    _handleUpdateResult(
+                      viewModel.decrementQuantity.result,
+                      wasLastItem: wasLastItem,
+                      productTitle: product.title,
+                    );
+                  },
                 );
               },
             ),

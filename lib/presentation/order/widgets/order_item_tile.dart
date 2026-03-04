@@ -9,24 +9,34 @@ class OrderItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
 
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                item.product.image,
-                width: 72,
-                height: 72,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                    const Icon(Icons.image_not_supported, size: 72),
+              borderRadius: BorderRadius.circular(12),
+              child: ColoredBox(
+                color: cs.surfaceContainerLowest,
+                child: SizedBox(
+                  width: 72,
+                  height: 72,
+                  child: Image.network(
+                    item.product.image,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stack) => Center(
+                      child: Icon(
+                        Icons.image_not_supported_outlined,
+                        size: 28,
+                        color: cs.onSurfaceVariant.withAlpha(100),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -38,24 +48,44 @@ class OrderItemTile extends StatelessWidget {
                     item.product.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: textTheme.titleSmall,
+                    style: tt.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      height: 1.3,
+                    ),
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    '${item.quantity}x ${formatBRL(item.product.price)}',
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    formatBRL(item.subtotal),
-                    style: textTheme.titleSmall?.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${item.quantity}x',
+                          style: tt.labelMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(formatBRL(item.product.price), style: tt.bodySmall),
+                    ],
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              formatBRL(item.subtotal),
+              style: tt.titleSmall?.copyWith(
+                color: cs.primary,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ],

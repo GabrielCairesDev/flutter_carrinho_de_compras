@@ -50,7 +50,7 @@ class _OrderViewState extends State<OrderView> {
 
     return ViewScaffold(
       appBar: AppBar(
-        title: const Text('Pedido Finalizado'),
+        title: const Text('Pedido Confirmado'),
         automaticallyImplyLeading: false,
       ),
       body: Column(
@@ -58,10 +58,10 @@ class _OrderViewState extends State<OrderView> {
           const SuccessBanner(),
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               itemCount: cart.items.length,
               itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.only(bottom: 10),
                 child: OrderItemTile(item: cart.items[index]),
               ),
             ),
@@ -71,20 +71,34 @@ class _OrderViewState extends State<OrderView> {
             shippingFee: OrderViewModel.shippingFee,
             total: viewModel.total,
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _onNewOrder,
-                icon: const Icon(Icons.shopping_bag_outlined),
-                label: const Text('Novo Pedido'),
-              ),
-            ),
-          ),
+          _NewOrderButton(onNewOrder: _onNewOrder),
         ],
       ),
     );
   }
 }
 
+class _NewOrderButton extends StatelessWidget {
+  final VoidCallback onNewOrder;
+
+  const _NewOrderButton({required this.onNewOrder});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      color: cs.surface,
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      child: SizedBox(
+        width: double.infinity,
+        child: FilledButton.icon(
+          onPressed: onNewOrder,
+          icon: const Icon(Icons.shopping_bag_outlined),
+          label: const Text('Continuar Comprando'),
+          style: FilledButton.styleFrom(minimumSize: const Size(0, 52)),
+        ),
+      ),
+    );
+  }
+}

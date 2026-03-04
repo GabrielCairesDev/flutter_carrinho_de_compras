@@ -72,12 +72,12 @@ class _CartViewState extends State<CartView> {
             children: [
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   itemCount: viewModel.cart.items.length,
                   itemBuilder: (context, index) {
                     final item = viewModel.cart.items[index];
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.only(bottom: 10),
                       child: CartItemTile(
                         item: item,
                         isLoading: viewModel.isItemOperationRunning,
@@ -103,23 +103,40 @@ class _CartViewState extends State<CartView> {
                 ),
               ),
               OrderSummary(cart: viewModel.cart),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: viewModel.isItemOperationRunning
-                        ? null
-                        : _onCheckout,
-                    icon: const Icon(Icons.check_circle_outline),
-                    label: const Text('Finalizar Pedido'),
-                  ),
-                ),
+              _CheckoutButton(
+                isLoading: viewModel.isItemOperationRunning,
+                onCheckout: _onCheckout,
               ),
             ],
           ),
         );
       },
+    );
+  }
+}
+
+class _CheckoutButton extends StatelessWidget {
+  final bool isLoading;
+  final VoidCallback onCheckout;
+
+  const _CheckoutButton({required this.isLoading, required this.onCheckout});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      color: cs.surface,
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      child: SizedBox(
+        width: double.infinity,
+        child: FilledButton.icon(
+          onPressed: isLoading ? null : onCheckout,
+          icon: const Icon(Icons.check_circle_outline_rounded),
+          label: const Text('Finalizar Pedido'),
+          style: FilledButton.styleFrom(minimumSize: const Size(0, 52)),
+        ),
+      ),
     );
   }
 }

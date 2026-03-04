@@ -8,12 +8,29 @@ class CartIconBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => Navigator.pushNamed(context, AppRoutes.cart),
-      icon: Badge(
-        isLabelVisible: count > 0,
-        label: Text('$count'),
-        child: const Icon(Icons.shopping_cart),
+    final cs = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: IconButton(
+        onPressed: () => Navigator.pushNamed(context, AppRoutes.cart),
+        tooltip: 'Ver carrinho',
+        style: IconButton.styleFrom(
+          backgroundColor: count > 0
+              ? cs.primaryContainer
+              : cs.surfaceContainerHigh,
+          foregroundColor: count > 0
+              ? cs.onPrimaryContainer
+              : cs.onSurfaceVariant,
+        ),
+        icon: Badge(
+          isLabelVisible: count > 0,
+          label: Text(
+            '$count',
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+          ),
+          child: const Icon(Icons.shopping_cart_rounded),
+        ),
       ),
     );
   }
