@@ -323,7 +323,8 @@ ListenableBuilder(
 | Injeção de APIs nos ViewModels | Permite testes unitários determinísticos sem mocks externos (apenas `flutter_test`) |
 | 20% de falha aleatória nas APIs | Simula instabilidade real de rede; garante que o app lida corretamente com erros em todos os fluxos |
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/cc3f5554-d5eb-4aec-a1e0-f2d15e70c7c8" width="250"/>
-  <img src="https://github.com/user-attachments/assets/e08afbf7-f461-4597-83f0-5e63c4c751c6" width="250"/>
-  <img src="https://github.com/user-attachments/assets/296bfcf9-d3c4-416c-8979-90a390f1725b" width="250"/>
+  <img src="https://github.com/user-attachments/assets/a79bccd2-3da9-4dc6-bf6a-0541db043452" width="220"/>
+  <img src="https://github.com/user-attachments/assets/8c192d36-1f88-45c4-892b-9bb561382fe9" width="220"/>
+  <img src="https://github.com/user-attachments/assets/207ea049-ed58-448a-9da1-1ab817b4771d" width="220"/>
 </p>
+
