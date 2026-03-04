@@ -9,5 +9,9 @@ void main() {
     await tester.pump();
 
     expect(find.text('Catálogo'), findsOneWidget);
+
+    // Drena timers pendentes (ex: Future.delayed de 500ms do ProductsApi)
+    // para que o framework não reclame de timers ativos após o teste.
+    await tester.pump(const Duration(seconds: 1));
   });
 }

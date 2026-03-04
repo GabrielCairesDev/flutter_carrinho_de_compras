@@ -50,7 +50,7 @@ class _OrderViewState extends State<OrderView> {
 
     return ViewScaffold(
       appBar: AppBar(
-        title: const Text('Pedido Confirmado'),
+        title: const Text('Pedido Finalizado'),
         automaticallyImplyLeading: false,
       ),
       body: Column(
@@ -95,7 +95,7 @@ class _NewOrderButton extends StatelessWidget {
         child: FilledButton.icon(
           onPressed: onNewOrder,
           icon: const Icon(Icons.shopping_bag_outlined),
-          label: const Text('Continuar Comprando'),
+          label: const Text('Novo Pedido'),
           style: FilledButton.styleFrom(minimumSize: const Size(0, 52)),
         ),
       ),

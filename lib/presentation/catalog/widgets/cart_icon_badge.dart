@@ -29,7 +29,7 @@ class CartIconBadge extends StatelessWidget {
             '$count',
             style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
           ),
-          child: const Icon(Icons.shopping_cart_rounded),
+          child: const Icon(Icons.shopping_cart),
         ),
       ),
     );

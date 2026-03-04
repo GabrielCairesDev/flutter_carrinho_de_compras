@@ -57,7 +57,7 @@ void main() {
 
       expect(find.text('Catálogo'), findsOneWidget);
       for (final p in tProducts) {
-        expect(find.text(p.title), findsOneWidget);
+        expect(find.text(p.title, skipOffstage: false), findsOneWidget);
       }
     });
 
@@ -65,7 +65,7 @@ void main() {
       await tester.pumpWidget(buildTestApp());
       await tester.pumpAndSettle();
 
-      expect(find.text('Adicionar'), findsNWidgets(tProducts.length));
+      expect(find.text('Adicionar', skipOffstage: false), findsNWidgets(tProducts.length));
     });
 
     testWidgets('tela de erro aparece quando a API falha', (tester) async {
@@ -92,11 +92,13 @@ void main() {
       await tester.pumpWidget(buildTestApp());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Adicionar').first);
+      final addButton = find.text('Adicionar').first;
+      await tester.ensureVisible(addButton);
+      await tester.tap(addButton);
       await tester.pumpAndSettle();
 
       // O botão "Adicionar" do primeiro produto sumiu
-      expect(find.text('Adicionar'), findsNWidgets(tProducts.length - 1));
+      expect(find.text('Adicionar', skipOffstage: false), findsNWidgets(tProducts.length - 1));
       // Badge e counter mostram "1"
       expect(find.text('1'), findsWidgets);
     });
@@ -106,11 +108,15 @@ void main() {
       await tester.pumpAndSettle();
 
       // Adiciona primeiro produto
-      await tester.tap(find.text('Adicionar').first);
+      final firstAdd = find.text('Adicionar').first;
+      await tester.ensureVisible(firstAdd);
+      await tester.tap(firstAdd);
       await tester.pumpAndSettle();
 
       // Adiciona segundo produto
-      await tester.tap(find.text('Adicionar').first);
+      final secondAdd = find.text('Adicionar').first;
+      await tester.ensureVisible(secondAdd);
+      await tester.tap(secondAdd);
       await tester.pumpAndSettle();
 
       // Badge deve mostrar 2 (dois produtos únicos)
@@ -123,7 +129,9 @@ void main() {
       await tester.pumpWidget(buildTestApp());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Adicionar').first);
+      final addButton = find.text('Adicionar').first;
+      await tester.ensureVisible(addButton);
+      await tester.tap(addButton);
       await tester.pumpAndSettle();
 
       // Navega para o carrinho
@@ -151,7 +159,9 @@ void main() {
       await tester.pumpWidget(buildTestApp());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Adicionar').first);
+      final addButton = find.text('Adicionar').first;
+      await tester.ensureVisible(addButton);
+      await tester.tap(addButton);
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.shopping_cart));
       await tester.pumpAndSettle();
@@ -168,7 +178,9 @@ void main() {
       await tester.pumpWidget(buildTestApp(checkoutFails: true));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Adicionar').first);
+      final addButton = find.text('Adicionar').first;
+      await tester.ensureVisible(addButton);
+      await tester.tap(addButton);
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.shopping_cart));
       await tester.pumpAndSettle();
@@ -187,7 +199,9 @@ void main() {
       await tester.pumpWidget(buildTestApp());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Adicionar').first);
+      final addButton = find.text('Adicionar').first;
+      await tester.ensureVisible(addButton);
+      await tester.tap(addButton);
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.shopping_cart));
       await tester.pumpAndSettle();
@@ -203,7 +217,9 @@ void main() {
       await tester.pumpWidget(buildTestApp());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Adicionar').first);
+      final addButton = find.text('Adicionar').first;
+      await tester.ensureVisible(addButton);
+      await tester.tap(addButton);
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.shopping_cart));
       await tester.pumpAndSettle();
@@ -222,7 +238,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Adiciona produto → carrinho → checkout → pedido finalizado
-      await tester.tap(find.text('Adicionar').first);
+      final addButton = find.text('Adicionar').first;
+      await tester.ensureVisible(addButton);
+      await tester.tap(addButton);
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.shopping_cart));
       await tester.pumpAndSettle();

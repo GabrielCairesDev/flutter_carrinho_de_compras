@@ -80,7 +80,7 @@ class _CatalogViewState extends State<CatalogView> {
           errorMessage: _loadErrorMessage,
           emptyMessage: _emptyMessage,
           appBar: AppBar(
-            title: const Text('Produtos'),
+            title: const Text('Catálogo'),
             actions: [
               CartIconBadge(count: CartStore.instance.cart.uniqueCount),
             ],
@@ -93,7 +93,7 @@ class _CatalogViewState extends State<CatalogView> {
                 crossAxisCount: 2,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 0.62,
+                childAspectRatio: 0.75,
               ),
               itemCount: viewModel.products.length,
               itemBuilder: (context, index) {
