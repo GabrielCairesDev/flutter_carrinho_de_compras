@@ -1,5 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_carrinho_de_compras/core/utils/currency_formatter.dart';
+import 'package:flutter_carrinho_de_compras/core/widgets/image_error_widget.dart';
+import 'package:flutter_carrinho_de_compras/core/widgets/image_skeleton.dart';
 import 'package:flutter_carrinho_de_compras/core/widgets/quantity_counter.dart';
 import 'package:flutter_carrinho_de_compras/domain/models/product.dart';
 
@@ -37,7 +40,7 @@ class ProductCard extends StatelessWidget {
           Expanded(
             flex: 4,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -58,7 +61,7 @@ class ProductCard extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   if (quantityInCart == 0)
                     _AddButton(isLoading: isLoading, onAdd: onAdd)
                   else
@@ -90,29 +93,11 @@ class _ProductImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ColoredBox(
       color: cs.surfaceContainerLowest,
-      child: Image.network(
-        image,
+      child: CachedNetworkImage(
+        imageUrl: image,
         fit: BoxFit.contain,
-        errorBuilder: (context, error, stack) => Center(
-          child: Icon(
-            Icons.image_not_supported_outlined,
-            size: 40,
-            color: cs.onSurfaceVariant.withAlpha(100),
-          ),
-        ),
-        loadingBuilder: (_, child, progress) {
-          if (progress == null) return child;
-          return Center(
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              strokeCap: StrokeCap.round,
-              value: progress.expectedTotalBytes != null
-                  ? progress.cumulativeBytesLoaded /
-                        progress.expectedTotalBytes!
-                  : null,
-            ),
-          );
-        },
+        placeholder: (_, _) => const ImageSkeleton(),
+        errorWidget: (_, _, _) => const ImageErrorWidget(iconSize: 40),
       ),
     );
   }

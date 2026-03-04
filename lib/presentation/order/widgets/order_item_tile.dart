@@ -1,5 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_carrinho_de_compras/core/utils/currency_formatter.dart';
+import 'package:flutter_carrinho_de_compras/core/widgets/image_error_widget.dart';
+import 'package:flutter_carrinho_de_compras/core/widgets/image_skeleton.dart';
 import 'package:flutter_carrinho_de_compras/domain/models/cart_item.dart';
 
 class OrderItemTile extends StatelessWidget {
@@ -25,16 +28,11 @@ class OrderItemTile extends StatelessWidget {
                 child: SizedBox(
                   width: 72,
                   height: 72,
-                  child: Image.network(
-                    item.product.image,
+                  child: CachedNetworkImage(
+                    imageUrl: item.product.image,
                     fit: BoxFit.contain,
-                    errorBuilder: (context, error, stack) => Center(
-                      child: Icon(
-                        Icons.image_not_supported_outlined,
-                        size: 28,
-                        color: cs.onSurfaceVariant.withAlpha(100),
-                      ),
-                    ),
+                    placeholder: (_, __) => const ImageSkeleton(),
+                    errorWidget: (_, __, ___) => const ImageErrorWidget(iconSize: 28),
                   ),
                 ),
               ),
