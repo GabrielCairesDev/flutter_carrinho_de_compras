@@ -37,13 +37,27 @@ Widget buildTestApp({bool checkoutFails = false}) {
   );
 }
 
+/// Avança o relógio em múltiplos passos para que cada frame intermediário seja
+/// renderizado. Necessário porque pump(duration) só renderiza UM frame ao final,
+/// enquanto animações (navegação ~300ms, AnimatedSwitcher ~220ms) precisam de
+/// vários frames para completar — sem travar em animações infinitas como o
+/// ImageSkeleton do CachedNetworkImage.
+Future<void> settle(WidgetTester tester) async {
+  await tester.pump(); // inicia operações assíncronas
+  for (int i = 0; i < 60; i++) {
+    await tester.pump(const Duration(milliseconds: 16));
+  }
+}
+
 /// O SnackBar de sucesso do catálogo persiste no ScaffoldMessenger ao navegar
 /// para o carrinho. Como pumpAndSettle() não avança timers pendentes que não
 /// agendaram um frame, é necessário avançar o relógio manualmente para que
 /// o SnackBar seja descartado antes de interagir com elementos da CartView.
 Future<void> dismissSnackbars(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 5));
-  await tester.pumpAndSettle();
+  for (int i = 0; i < 60; i++) {
+    await tester.pump(const Duration(milliseconds: 16));
+  }
 }
 
 void main() {
@@ -53,7 +67,7 @@ void main() {
   group('Tela de Catálogo', () {
     testWidgets('exibe lista de produtos após carregamento', (tester) async {
       await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Catálogo'), findsOneWidget);
       for (final p in tProducts) {
@@ -63,7 +77,7 @@ void main() {
 
     testWidgets('exibe botão "Adicionar" para cada produto', (tester) async {
       await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Adicionar', skipOffstage: false), findsNWidgets(tProducts.length));
     });
@@ -81,7 +95,7 @@ void main() {
         initialRoute: AppRoutes.catalog,
       );
       await tester.pumpWidget(app);
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Erro simulado ao carregar produtos.'), findsOneWidget);
     });
@@ -90,12 +104,12 @@ void main() {
   group('Adicionar produto ao carrinho', () {
     testWidgets('botão "Adicionar" vira contador após adição', (tester) async {
       await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       final addButton = find.text('Adicionar').first;
       await tester.ensureVisible(addButton);
       await tester.tap(addButton);
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       // O botão "Adicionar" do primeiro produto sumiu
       expect(find.text('Adicionar', skipOffstage: false), findsNWidgets(tProducts.length - 1));
@@ -105,19 +119,19 @@ void main() {
 
     testWidgets('badge do AppBar exibe contagem de produtos únicos', (tester) async {
       await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       // Adiciona primeiro produto
       final firstAdd = find.text('Adicionar').first;
       await tester.ensureVisible(firstAdd);
       await tester.tap(firstAdd);
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       // Adiciona segundo produto
       final secondAdd = find.text('Adicionar').first;
       await tester.ensureVisible(secondAdd);
       await tester.tap(secondAdd);
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       // Badge deve mostrar 2 (dois produtos únicos)
       expect(find.text('2'), findsWidgets);
@@ -127,16 +141,16 @@ void main() {
   group('Tela de Carrinho', () {
     testWidgets('exibe itens adicionados ao carrinho', (tester) async {
       await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       final addButton = find.text('Adicionar').first;
       await tester.ensureVisible(addButton);
       await tester.tap(addButton);
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       // Navega para o carrinho
       await tester.tap(find.byIcon(Icons.shopping_cart));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Carrinho'), findsOneWidget);
       expect(find.text(tProducts.first.title), findsOneWidget);
@@ -145,10 +159,10 @@ void main() {
 
     testWidgets('carrinho vazio exibe mensagem de estado vazio', (tester) async {
       await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       await tester.tap(find.byIcon(Icons.shopping_cart));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Seu carrinho está vazio.'), findsOneWidget);
     });
@@ -157,18 +171,18 @@ void main() {
   group('Checkout', () {
     testWidgets('checkout bem-sucedido navega para tela de pedido finalizado', (tester) async {
       await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       final addButton = find.text('Adicionar').first;
       await tester.ensureVisible(addButton);
       await tester.tap(addButton);
-      await tester.pumpAndSettle();
+      await settle(tester);
       await tester.tap(find.byIcon(Icons.shopping_cart));
-      await tester.pumpAndSettle();
+      await settle(tester);
       await dismissSnackbars(tester);
 
       await tester.tap(find.text('Finalizar Pedido'));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Pedido Finalizado'), findsOneWidget);
       expect(find.text('Novo Pedido'), findsOneWidget);
@@ -176,18 +190,18 @@ void main() {
 
     testWidgets('checkout com falha exibe mensagem de erro sem sair do carrinho', (tester) async {
       await tester.pumpWidget(buildTestApp(checkoutFails: true));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       final addButton = find.text('Adicionar').first;
       await tester.ensureVisible(addButton);
       await tester.tap(addButton);
-      await tester.pumpAndSettle();
+      await settle(tester);
       await tester.tap(find.byIcon(Icons.shopping_cart));
-      await tester.pumpAndSettle();
+      await settle(tester);
       await dismissSnackbars(tester);
 
       await tester.tap(find.text('Finalizar Pedido'));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Carrinho'), findsOneWidget);
       expect(find.text('Pedido Finalizado'), findsNothing);
@@ -197,17 +211,17 @@ void main() {
   group('Tela de Pedido Finalizado', () {
     testWidgets('exibe itens do pedido e botão de novo pedido', (tester) async {
       await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       final addButton = find.text('Adicionar').first;
       await tester.ensureVisible(addButton);
       await tester.tap(addButton);
-      await tester.pumpAndSettle();
+      await settle(tester);
       await tester.tap(find.byIcon(Icons.shopping_cart));
-      await tester.pumpAndSettle();
+      await settle(tester);
       await dismissSnackbars(tester);
       await tester.tap(find.text('Finalizar Pedido'));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text(tProducts.first.title), findsOneWidget);
       expect(find.text('Novo Pedido'), findsOneWidget);
@@ -215,17 +229,17 @@ void main() {
 
     testWidgets('não exibe botão de voltar (sem retorno ao carrinho)', (tester) async {
       await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       final addButton = find.text('Adicionar').first;
       await tester.ensureVisible(addButton);
       await tester.tap(addButton);
-      await tester.pumpAndSettle();
+      await settle(tester);
       await tester.tap(find.byIcon(Icons.shopping_cart));
-      await tester.pumpAndSettle();
+      await settle(tester);
       await dismissSnackbars(tester);
       await tester.tap(find.text('Finalizar Pedido'));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       // automaticallyImplyLeading: false → sem botão de voltar
       expect(find.byType(BackButton), findsNothing);
@@ -235,22 +249,22 @@ void main() {
   group('Fluxo completo', () {
     testWidgets('novo pedido retorna ao catálogo com carrinho limpo', (tester) async {
       await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       // Adiciona produto → carrinho → checkout → pedido finalizado
       final addButton = find.text('Adicionar').first;
       await tester.ensureVisible(addButton);
       await tester.tap(addButton);
-      await tester.pumpAndSettle();
+      await settle(tester);
       await tester.tap(find.byIcon(Icons.shopping_cart));
-      await tester.pumpAndSettle();
+      await settle(tester);
       await dismissSnackbars(tester);
       await tester.tap(find.text('Finalizar Pedido'));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       // Inicia novo pedido
       await tester.tap(find.text('Novo Pedido'));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       // Voltou ao catálogo
       expect(find.text('Catálogo'), findsOneWidget);
