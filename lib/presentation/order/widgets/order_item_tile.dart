@@ -31,8 +31,9 @@ class OrderItemTile extends StatelessWidget {
                   child: CachedNetworkImage(
                     imageUrl: item.product.image,
                     fit: BoxFit.contain,
-                    placeholder: (_, __) => const ImageSkeleton(),
-                    errorWidget: (_, __, ___) => const ImageErrorWidget(iconSize: 28),
+                    placeholder: (_, _) => const ImageSkeleton(),
+                    errorWidget: (_, _, _) =>
+                        const ImageErrorWidget(iconSize: 28),
                   ),
                 ),
               ),
